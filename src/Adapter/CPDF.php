@@ -1083,7 +1083,7 @@ class CPDF implements Canvas
     /**
      * Add text to each page after rendering is complete
      */
-    protected function _add_page_text()
+    protected function _add_page_text($options = array())
     {
         if (!count($this->_page_text)) {
             return;
@@ -1096,6 +1096,13 @@ class CPDF implements Canvas
             $this->reopen_object($pid);
 
             foreach ($this->_page_text as $pt) {
+                if(isset($options['exclude_pages']) && is_array($options['exclude_pages'])) {
+                    if(in_array($page_number, $options['exclude_pages'])) {
+                        $page_number++;
+                        continue 2;
+                    }
+                }
+
                 extract($pt);
 
                 switch ($_t) {
@@ -1138,7 +1145,8 @@ class CPDF implements Canvas
         if (!isset($options["compress"])) $options["compress"] = true;
         if (!isset($options["Attachment"])) $options["Attachment"] = true;
 
-        $this->_add_page_text();
+        $optionsPageText = isset($options['page_text']) ? $options['page_text'] : array();
+        $this->_add_page_text($optionsPageText);
 
         $debug = !$options['compress'];
         $tmp = ltrim($this->_pdf->output($debug));
@@ -1165,7 +1173,8 @@ class CPDF implements Canvas
     {
         if (!isset($options["compress"])) $options["compress"] = true;
 
-        $this->_add_page_text();
+        $optionsPageText = isset($options['page_text']) ? $options['page_text'] : array();
+        $this->_add_page_text($optionsPageText);
 
         $debug = !$options['compress'];
 
